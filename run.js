@@ -1,49 +1,29 @@
-import { $ } from "bun";
-const pipe =
-  (...fns) =>
-  (payload) =>
-    fns.reduce(
-      (value, fn) => (value instanceof Promise ? value.then(fn) : fn(value)),
-      payload
-    );
+import { CURRENT_OPS } from "@cli/commands";
+import { MOTD } from "@cli/contstants";
+import { DICTIONARY } from "@cli/dictionary";
+import { _clear, pipe } from "@cli/utils";
 
 const _alertUnknownCommand = () =>
-  process.stdout.write("🧨 Неизвестная команда");
-const _clear = async () => await $`clear`;
-const _getCurrentInfo = async () => await $`git status`;
-const _lsThis = async () => await $`ls -la .`;
+  process.stdout.write(`🧨 ${DICTIONARY.COMMAND_UNKNOWN}`);
 
-var currentOps = {
-  1: [
-    "Получить текущую информацию о репозитории",
-    () => pipe(_clear, _getCurrentInfo, init)(),
-  ],
-  2: [
-    "Получить список содержимого репозитория",
-    () => pipe(_clear, _lsThis, init)(),
-  ],
-  X: ["Выход", () => process.exit()],
-};
+export const init = () =>
+  process.stdout.write(`
+${MOTD}
+${DICTIONARY.AVAILABLE_OPERATIONS}
 
-const init = () =>
-  process.stdout.write(
-    `
-
-В настоящий момент доступны следующие операции:
-
-${Object.entries(currentOps)
-  .map(([key, value]) => `${key}) ${value[0]}`)
+${Object.entries(CURRENT_OPS)
+  .map(([key, [title]]) => `  [${key}] ${title}`)
   .join("\n")}
 
-[Ваш выбор] > `
-  );
+[${DICTIONARY.YOUR_CHOICE}] > `);
 
 init();
 
 for await (const line of console) {
   const input = line.trim().toUpperCase();
-  if (input in currentOps) {
-    await currentOps[input][1]?.();
+
+  if (input in CURRENT_OPS) {
+    await CURRENT_OPS[input][1]?.();
     continue;
   } else {
     await pipe(_clear, _alertUnknownCommand, init)();
