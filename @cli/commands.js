@@ -11,18 +11,14 @@ import {
   pipe,
 } from "./utils";
 
+const execute = (...fns) => pipe(_clear, ...fns, init)();
+
 export const CURRENT_OPS = {
-  1: [DICTIONARY.UPDATE_PROJECT, () => pipe(_clear, _getLastUpdates, init)()],
-  2: [DICTIONARY.RUN_PROJECT, () => pipe(_clear, _dockerComposeUp, init)()],
-  3: [DICTIONARY.STOP_PROJECT, () => pipe(_clear, _dockerComposeDown, init)()],
-  4: [
-    DICTIONARY.REBUILD_FRONTEND,
-    () => pipe(_clear, _dockerFrontRebuild, init)(),
-  ],
-  5: [
-    DICTIONARY.REBUILD_BACKEND,
-    () => pipe(_clear, _dockerBackRebuild, init)(),
-  ],
-  6: [DICTIONARY.RELOAD_PROXY, () => pipe(_clear, _reloadProxy, init)()],
+  1: [DICTIONARY.UPDATE_PROJECT, () => execute(_getLastUpdates)],
+  2: [DICTIONARY.RUN_PROJECT, () => execute(_dockerComposeUp)],
+  3: [DICTIONARY.STOP_PROJECT, () => execute(_dockerComposeDown)],
+  4: [DICTIONARY.REBUILD_FRONTEND, () => execute(_dockerFrontRebuild)],
+  5: [DICTIONARY.REBUILD_BACKEND, () => execute(_dockerBackRebuild)],
+  6: [DICTIONARY.RELOAD_PROXY, () => execute(_reloadProxy)],
   X: [DICTIONARY.EXIT, () => process.exit()],
 };
