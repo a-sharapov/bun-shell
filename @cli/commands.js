@@ -11,7 +11,7 @@ import {
   pipe,
 } from "./utils";
 
-const execute = (...fns) => pipe(_clear, ...fns, init)();
+const execute = (...fns) => void pipe(_clear, ...fns, init)();
 
 export const CURRENT_OPS = {
   1: [DICTIONARY.UPDATE_PROJECT, () => execute(_getLastUpdates)],
